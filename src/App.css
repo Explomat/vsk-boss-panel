@@ -1,22 +1,41 @@
-.App {
-  text-align: center;
-}
 
-.App-logo {
-  height: 40vmin;
-}
 
 .App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+	background-color: #282c34;
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	font-size: calc(10px + 2vmin);
+	color: white;
 }
 
 .App-link {
-  color: #09d3ac;
+	color: #09d3ac;
+}
+
+
+.subordinates-card__selected-users {
+	font-size: 18px;
+	cursor: pointer;
+	padding: 0 4px;
+	color: #1890ff;
+}
+
+.ant-list-item:hover {
+	background-color: #f6fbff;
+}
+
+.subordinates-card__menu {
+	margin-right: 20px;
+	font-weight: bold;
+}
+
+.learnings-settings__require-passing {
+	margin-bottom: 16px !important;
+}
+
+.learnings-settings__passing-period {
+	margin-bottom: 4px !important;
 }
