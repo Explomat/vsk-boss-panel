@@ -1,5 +1,20 @@
 import React, { Component } from 'react';
-import { Card, Input, Icon, Modal, Button, List, Avatar, Menu, Dropdown, Checkbox, DatePicker, Radio } from 'antd';
+import {
+	Card,
+	Input,
+	Icon,
+	Modal,
+	Button,
+	List,
+	Avatar,
+	Menu,
+	Dropdown,
+	Checkbox,
+	DatePicker,
+	Radio,
+	Upload
+} from 'antd';
+//import { FilePond } from 'react-filepond';
 import SubordinateList from './app/SubordinateList';
 import LearningsList from './app/learnings/LearningsList';
 import { connect } from 'react-redux';
@@ -9,6 +24,7 @@ import { createBaseUrl } from './utils/request';
 import './App.css';
 import moment from 'moment';
 import locale from 'antd/es/date-picker/locale/ru_RU';
+//import 'filepond/dist/filepond.min.css';
 
 class App extends Component {
 
@@ -25,9 +41,11 @@ class App extends Component {
 		this.handleChangeSelectPeriond = this.handleChangeSelectPeriond.bind(this);
 		this.handleChangeDateSettings = this.handleChangeDateSettings.bind(this);
 		this.onAssignLearnings = this.onAssignLearnings.bind(this);
+		this.handleToggleFromFile = this.handleToggleFromFile.bind(this);
 
 		this.selectAllLearnings = false;
 		this.learningType = null;
+		this.fileType = null;
 
 		this.state = {
 			isShowItems: false,
@@ -36,12 +54,21 @@ class App extends Component {
 			isShowAddedInfo: false,
 			isRequireSettingsPassing: true,
 			selectedSettingsPassingPeriod: 1,
-			settingsDate: moment(new Date(), 'DD.MM.YYYY')
+			settingsDate: moment(new Date(), 'DD.MM.YYYY'),
+			isShowUploadFile: false
 		}
 	}
 
 	componentDidMount() {
 		this.props.getSubordinates();
+	}
+
+	handleToggleFromFile(type) {
+		this.fileType = type;
+
+		this.setState({
+			isShowUploadFile: !this.state.isShowUploadFile
+		});
 	}
 
 	onAssignLearnings() {
@@ -130,6 +157,7 @@ class App extends Component {
 	render() {
 		const {
 			ui,
+			user,
 			meta,
 			subordinates,
 			selectedSubordinates,
@@ -139,7 +167,17 @@ class App extends Component {
 			info,
 			learningsCount
 		} = this.props;
-		const { isShowItems, isShowTests, isShowCourses, isShowAddedInfo, isRequireSettingsPassing, selectedSettingsPassingPeriod, settingsDate } = this.state;
+
+		const {
+			isShowItems,
+			isShowTests,
+			isShowCourses,
+			isShowAddedInfo,
+			isRequireSettingsPassing,
+			selectedSettingsPassingPeriod,
+			settingsDate,
+			isShowUploadFile
+		} = this.state;
 
 		return (
 			<div className='App'>
@@ -185,6 +223,10 @@ class App extends Component {
 													<Menu.Item onClick={ e => this.handleToggleSelectedTests(e, true)}>Тесты</Menu.Item>
 													<Menu.Item onClick={ e => this.handleToggleSelectedCourses(e, true)}>Курсы</Menu.Item>
 												</Menu.SubMenu>
+												{user.is_admin && <Menu.SubMenu title='Назначить из файла'>
+													<Menu.Item onClick={() => this.handleToggleFromFile('assessments')}>Тесты</Menu.Item>
+													<Menu.Item onClick={() => this.handleToggleFromFile('courses')}>Курсы</Menu.Item>
+												</Menu.SubMenu>}
 												<Menu.SubMenu
 													title={
 														<span>
@@ -302,6 +344,38 @@ class App extends Component {
 									{selectedSettingsPassingPeriod === 1 && <DatePicker defaultValue={settingsDate} onChange={this.handleChangeDateSettings} locale={locale}/>}
 								</div>
 							</div>
+						</Modal>
+						<Modal
+							width = {820}
+							title='Выберите файл'
+							okText='Назначить'
+							okButtonProps={{
+								disabled: false
+							}}
+							cancelText='Отмена'
+							visible={isShowUploadFile}
+							onCancel={this.handleToggleFromFile}
+							onOk={() => this.handleToggleFromFile}
+						>
+							<Upload
+								name='file'
+								action={`${createBaseUrl('ActivateAssementsByFile')}`}
+							>
+								<Button>
+									<Icon type="upload" /> Click to Upload
+								</Button>
+							</Upload>
+							{/*<FilePond
+								ref={ref => (this.pond = ref)}
+								files={this.state.files}
+								server={`${createBaseUrl('ActivateAssementsByFile')}`}
+								onupdatefiles={fileItems => {
+									// Set currently active file objects to this.state
+									this.setState({
+										files: fileItems.map(fileItem => fileItem.file)
+									});
+								}}
+							/>*/}
 						</Modal>
 					</div>
 				)}

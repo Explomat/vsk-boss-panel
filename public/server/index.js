@@ -1,7 +1,7 @@
 <%
 	//curUserID = 6605153029051275340; //Zayats
 	//curUserID = 6605155987556877175; // Анапольский
-	//curUserID = 6719946806941395578; //Асафов тест
+	curUserID = 6719946806941395578; //Асафов тест
 	//curUserID = 6605156452417082406; // Асафов 
 	//curUserID = 6711785032659205612; //Me test
 
@@ -15,10 +15,14 @@
 	var _Utils = OpenCodeLib('x-local://wt/web/vsk/portal/boss-panel/server/utils/utils.js');
 	DropFormsCache('x-local://wt/web/vsk/portal/boss-panel/server/utils/utils.js');
 
+	var _ActivateLearnings = OpenCodeLib('x-local://wt/web/vsk/portal/boss-panel/server/utils/activateLearnings.js');
+	DropFormsCache('x-local://wt/web/vsk/portal/boss-panel/server/utils/activateLearnings.js');
+
 	function getUser(userId) {
-		return ArrayOptFirstElem(XQuery("sql: \n\
+		var us = ArrayOptFirstElem(XQuery("sql: \n\
 			select \n\
-				distinct(cs.id), \n\
+				distinct(cs.id) id, \n\
+				cs.role_id, \n\
 				cs.code, \n\ 
 				cs.fullname, \n\
 				cs.position_name, \n\
@@ -32,6 +36,24 @@
 				and cs.is_dismiss = 0 \n\
 				and bt.code = 'main' \n\
 		"));
+
+		var userObj = undefined;
+		if (us != undefined) {
+			userObj = {
+				id: Int(us.id),
+				role_id: String(us.role_id),
+				code: String(us.code),
+				fullname: String(us.fullname),
+				position_name: String(us.position_name),
+				position_parent_name: String(us.position_parent_name),
+				position_parent_id: Int(us.position_parent_id),
+				is_admin: (String(us.role_id) == 'admin' ? true: false)
+			}
+
+			return userObj;
+		}
+
+		return userObj;
 	}
 
 	function getAllSubordinates(userId, subId){
@@ -478,6 +500,13 @@
 		oCell.Style.IsBold = true;
 		setMaxColWith(oCell.Value, 0);
 
+		oCell = oWorksheet.Cells.GetCell('J' + rindex);
+		oCell.Value = 'Обязательно к прохождению';
+		oCell.Style.ForegroundColor = '#CCCCCC';
+		oCell.Style.VerticalAlignment = 'Center';
+		oCell.Style.IsBold = true;
+		setMaxColWith(oCell.Value, 0);
+
 		rindex = rindex + 1;
 
 		for(el in learningItems){
@@ -526,6 +555,11 @@
 			oCell.Style.FontColor = '#444444';
 			setMaxColWith(oCell.Value, 8);
 
+			oCell = oWorksheet.Cells.GetCell('J' + rindex);
+			oCell.Value = String(el.passing_require) == '1' ? 'Да' : 'Нет';
+			oCell.Style.FontColor = '#444444';
+			setMaxColWith(oCell.Value, 8);
+
 			rindex = rindex + 1;
 		}
 
@@ -545,12 +579,10 @@
 		}
 
 		var ls = _Learnings.getLearnings(Int(u.position_parent_id));
-		//alert('ArrayCount(ls): ' + ArrayCount(ls));
 		var excelPath = '';
 
 		try {
 			excelPath = _report(ls);
-			//alert('excelPath: ' + excelPath);
 		} catch(e) {
 			alert('e: ' + e);
 			return _Utils.setError(e);
@@ -584,10 +616,57 @@
 		//Response.Write(LoadFileData(path));
 	}
 
-	/*function get_Test() {
-		Request.AddRespHeader('Content-Type', 'application/octet-stream');
-		Request.AddRespHeader('Content-disposition', 'attachment; filename=report.xlsx');
-		return LoadFileData('C:\\Windows\\Temp\\DatexTemp\\test.xlsx');
-	}*/
+	function post_ActivateCoursesByFile(queryObjects) {
+		var formData = queryObjects.Request.Form;
+		var file = formData.filepond;
 
+		var tempFileUrl = UrlToFilePath(ObtainTempFile('.xls'));
+
+		try {
+			PutFileData(tempFileUrl, file);
+		} catch(e) {
+			return _Utils.setError(e);
+		}
+
+		var errors = _ActivateLearnings.activateCourses(tempFileUrl);
+		if (errors != undefined) {
+			return _Utils.setError(errors);
+		}
+	}
+
+	function post_ActivateAssementsByFile(queryObjects) {
+		var formData = queryObjects.Request.Form;
+		var file = formData.file;
+
+		/*var docRes = tools.new_doc_by_name('resource');
+		docRes.TopElem.file_name = 'for_test';
+		docRes.TopElem.name = 'for_test';
+		docRes.BindToDb();
+		docRes.TopElem.put_str(file, 'for_test');
+		docRes.Save();*/
+
+		//alert(tools.object_to_text(file, 'json'));
+		//var tempFileUrl = UrlToFilePath(ObtainTempFile('.xlsx'));
+		//MoveFile(tempFileUrl, 'E:\\');
+
+
+		var tempFileUrl = UserDataDirectoryPath() + '\\datex_user_temp\\' + curUserID;
+		var filePath = '';
+
+		try {
+			ObtainDirectory(tempFileUrl, true);
+			filePath = tempFileUrl + '\\' + DateToRawSeconds(Date()) + '.xls';
+			alert('filePath: ' + filePath);
+			PutFileData(filePath, file);
+		} catch(e) {
+			return _Utils.setError(e);
+		}
+
+		alert('FilePathToUrl(filePath):' +FilePathToUrl(filePath));
+
+		var errors = _ActivateLearnings.activateAssessments(FilePathToUrl(filePath));
+		if (errors != undefined) {
+			return _Utils.setError(errors);
+		}
+	}
 %>

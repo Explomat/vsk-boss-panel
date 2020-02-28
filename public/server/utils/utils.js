@@ -10,7 +10,7 @@ function log(message){
 function setMessage(type, message){
 	return {
 		type: type,
-		message: message
+		message: String(message)
 	}
 }
 
