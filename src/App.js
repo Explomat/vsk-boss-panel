@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {
+	Alert,
 	Card,
 	Input,
 	Icon,
@@ -18,7 +19,7 @@ import {
 import SubordinateList from './app/SubordinateList';
 import LearningsList from './app/learnings/LearningsList';
 import { connect } from 'react-redux';
-import { getSubordinates, selectItem, error, info } from './appActions';
+import { getSubordinates, selectItem, onFileUploaded, error, info } from './appActions';
 import { resetSelectedLearnings, assignLearnings } from './app/learnings/learningActions';
 import { createBaseUrl } from './utils/request';
 import './App.css';
@@ -65,6 +66,12 @@ class App extends Component {
 
 	handleToggleFromFile(type) {
 		this.fileType = type;
+
+		this.props.onFileUploaded({
+			error: '',
+			count: 0,
+			isUpload: false
+		});
 
 		this.setState({
 			isShowUploadFile: !this.state.isShowUploadFile
@@ -165,7 +172,9 @@ class App extends Component {
 			getSubordinates,
 			error,
 			info,
-			learningsCount
+			learningsCount,
+			onFileUploaded,
+			fileUploaded
 		} = this.props;
 
 		const {
@@ -348,34 +357,54 @@ class App extends Component {
 						<Modal
 							width = {820}
 							title='Выберите файл'
-							okText='Назначить'
-							okButtonProps={{
-								disabled: false
-							}}
-							cancelText='Отмена'
 							visible={isShowUploadFile}
 							onCancel={this.handleToggleFromFile}
-							onOk={() => this.handleToggleFromFile}
+							footer={null}
 						>
+							<div className='learnings-settings'>
+								<Checkbox
+									className='learnings-settings__require-passing'
+									checked={isRequireSettingsPassing}
+									onChange={this.handleChangeRequirePassing}
+								>
+									Обязательный ли курс/тест для прохождения?
+								</Checkbox>
+								<div>
+									<Radio.Group className='learnings-settings__passing-period' value={selectedSettingsPassingPeriod} onChange={this.handleChangeSelectPeriond}>
+										<Radio value={1}>Выставить срок прохождения</Radio>
+										<Radio value={2}>Оставить срок по умолчанию, заданный в карточке курса</Radio>
+									</Radio.Group>
+									{selectedSettingsPassingPeriod === 1 && <DatePicker defaultValue={settingsDate} onChange={this.handleChangeDateSettings} locale={locale}/>}
+								</div>
+							</div>
+
 							<Upload
+								accept='.xls, .xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 								name='file'
-								action={`${createBaseUrl('ActivateAssementsByFile')}`}
+								showUploadList={false}
+								action={
+									this.fileType === 'assessments' ?
+										`${createBaseUrl('ActivateAssementsByFile')}`
+										: `${createBaseUrl('ActivateCoursesByFile')}`
+								}
+								onChange = {({ file }) => {
+									if (file.response) {
+										onFileUploaded(file.response.data);
+									}
+								}}
+								data={{
+									is_require_settings_passing: isRequireSettingsPassing,
+									selected_settings_passing_period: selectedSettingsPassingPeriod,
+									settings_date: settingsDate
+								}}
 							>
-								<Button>
-									<Icon type="upload" /> Click to Upload
+								<Button className='learnings-upload-file'>
+									<Icon type='upload' /> Загрузить файл и назначить
 								</Button>
 							</Upload>
-							{/*<FilePond
-								ref={ref => (this.pond = ref)}
-								files={this.state.files}
-								server={`${createBaseUrl('ActivateAssementsByFile')}`}
-								onupdatefiles={fileItems => {
-									// Set currently active file objects to this.state
-									this.setState({
-										files: fileItems.map(fileItem => fileItem.file)
-									});
-								}}
-							/>*/}
+							{fileUploaded.isUpload &&
+								<Alert className='learnings-upload-file-message' message={fileUploaded.error ? (fileUploaded.error + '\r\nНазначено: ' + fileUploaded.count) : 'Назначено: ' + fileUploaded.count} type='info' />
+							}
 						</Modal>
 					</div>
 				)}
@@ -391,4 +420,4 @@ function mapStateToProps(state){
 	}
 }
 
-export default connect(mapStateToProps, { getSubordinates, selectItem, resetSelectedLearnings, assignLearnings, error, info })(App);
+export default connect(mapStateToProps, { getSubordinates, selectItem, resetSelectedLearnings, assignLearnings, onFileUploaded, error, info })(App);

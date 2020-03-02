@@ -9,14 +9,17 @@
 
 	//curUserID = 6605154398863757020; // my test
 
-	var _Learnings = OpenCodeLib('x-local://wt/web/vsk/portal/boss-panel/server/utils/learnings.js');
-	DropFormsCache('x-local://wt/web/vsk/portal/boss-panel/server/utils/learnings.js');
+	var _LearningsRequests = OpenCodeLib('x-local://wt/web/vsk/portal/boss-panel/server/utils/learningsRequests.js');
+	DropFormsCache('x-local://wt/web/vsk/portal/boss-panel/server/utils/learningsRequests.js');
 
 	var _Utils = OpenCodeLib('x-local://wt/web/vsk/portal/boss-panel/server/utils/utils.js');
 	DropFormsCache('x-local://wt/web/vsk/portal/boss-panel/server/utils/utils.js');
 
 	var _ActivateLearnings = OpenCodeLib('x-local://wt/web/vsk/portal/boss-panel/server/utils/activateLearnings.js');
 	DropFormsCache('x-local://wt/web/vsk/portal/boss-panel/server/utils/activateLearnings.js');
+
+	var Report = OpenCodeLib('x-local://wt/web/vsk/portal/boss-panel/server/utils/report.js');
+	DropFormsCache('x-local://wt/web/vsk/portal/boss-panel/server/utils/report.js');
 
 	function getUser(userId) {
 		var us = ArrayOptFirstElem(XQuery("sql: \n\
@@ -135,27 +138,6 @@
 			},
 			subordinates: q
 		}
-
-		/*var obj = {
-			meta: {
-				total: 30,
-				pageSize: pageSize
-			},
-			subordinates: [
-				{
-					id: 1,
-					fullname: 'test Test test',
-					position_name: 'Developer',
-					pict_url: 'dasd'
-				},
-				{
-					id: 2,
-					fullname: 'test1 Test1 test1',
-					position_name: 'Developer1',
-					pict_url: 'dasd1'
-				}
-			]
-		}*/
 
 		return _Utils.setSuccess(obj);
 	}
@@ -290,52 +272,11 @@
 
 		for (cr in crs) {
 			for (cl in cls){
-				doc = null;
 
 				try {
-					if (passingPeriod == 1) {
-						diffDateSeconds = null;
-						diffDays = null;
-
-						try {
-							diffDateSeconds = DateDiff(Date(settingsDate), Date());
-						} catch(e) {}
-						
-						if (diffDateSeconds != null) {
-							diffDays = diffDateSeconds / (60 * 60 * 24);
-						}
-
-						if (diffDays != null) {
-							doc = tools.activate_course_to_person(cl.id, cr.id);
-
-							try {
-								doc.TopElem
-							} catch (e) {
-								doc = OpenDoc(UrlFromDocID(Int(doc)));
-							}
-
-							doc.TopElem.duration = (diffDays + 1);
-							doc.TopElem.max_end_date = Date(settingsDate);
-						}
-					} else {
-						doc = tools.activate_course_to_person(cl.id, cr.id);
-					}
-					
-					if (doc != null) {
-						try {
-							doc.TopElem
-						} catch (e) {
-							doc = OpenDoc(UrlFromDocID(Int(doc)));
-						}
-
-						doc.TopElem.custom_elems.ObtainChildByKey('passing_require').value = isRequirePassing;
-						doc.Save();
-					} else {
-						throw 'Ошибка при создании документа';
-					}
-					
+					_ActivateLearnings.activateCourseWithSettings(cl.id, cr.id, isRequirePassing, passingPeriod, settingsDate);
 				} catch(e) {
-					errors = errors + 'Ошибка при назначении! \r\nКурс "' + String(cr.title) + '", сотрудник "' + cl.fullname + '" : \r\n' + e + '\r\n';
+					errors = errors + e;
 				}
 			}
 		}
@@ -364,212 +305,15 @@
 
 		for (at in ats) {
 			for (cl in cls){
-				doc = null;
 
 				try {
-					if (passingPeriod == 1) {
-						diffDateSeconds = null;
-						diffDays = null;
-
-						try {
-							diffDateSeconds = DateDiff(Date(settingsDate), Date());
-						} catch(e) {}
-						
-						if (diffDateSeconds != null) {
-							diffDays = diffDateSeconds / (60 * 60 * 24);
-						}
-
-						if (diffDays != null) {
-							doc = tools.activate_test_to_person(cl.id, at.id, null, null, null, null, (diffDays + 1));
-						}
-					} else {
-						doc = tools.activate_test_to_person(cl.id, at.id);
-					}
-					
-					if (doc != null) {
-						try {
-							doc.TopElem
-						} catch (e) {
-							doc = OpenDoc(UrlFromDocID(Int(doc)));
-						}
-
-						doc.TopElem.custom_elems.ObtainChildByKey('passing_require').value = isRequirePassing;
-						doc.Save();
-					} else {
-						throw 'Ошибка при создании документа';
-					}
-
+					_ActivateLearnings.activateAssessmentWithSettings(cl.id, at.id, isRequirePassing, passingPeriod, settingsDate);
 				} catch(e) {
-					errors = errors + 'Ошибка при назначении! \r\nТест "' + String(at.title) + '", сотрудник "' + cl.fullname + '" : \r\n' + e + '\r\n';
+					errors = errors + e;
 				}
 			}
 		}
 		return _Utils.setSuccess(null, errors);
-	}
-
-	function _report(learningItems){
-		var colWidths = [];
-
-		function columnNameByIndex (d){
-			var colName = '';
-			while (d > 0) {
-				m = (d - 1) % 26;
-				colName = String.fromCharCode(65 + m) + colName;
-				d = Int((d - m) / 26)
-			}
-			return colName;
-		}
-
-		function setMaxColWith(value, index){
-			var count = StrCharCount(value);
-			var c = 0;
-			try {
-				c = colWidths[index];
-			} catch(e) {}
-
-			colWidths[index] = count > c ? count : c;
-		}
-
-
-		var path = UrlToFilePath(ObtainTempFile('.xlsx'));
-		var oExcelDoc = new ActiveXObject('Websoft.Office.Excel.Document');
-		oExcelDoc.CreateWorkBook();
-		var oWorksheet = oExcelDoc.GetWorksheet(0);
-		var	rindex = 1;
-
-		oCell = oWorksheet.Cells.GetCell('A' + rindex);
-		oCell.Value = 'ФИО';
-		oCell.Style.ForegroundColor = '#CCCCCC';
-		oCell.Style.VerticalAlignment = 'Center';
-		oCell.Style.IsBold = true;
-		setMaxColWith(oCell.Value, 0);
-
-		oCell = oWorksheet.Cells.GetCell('B' + rindex);
-		oCell.Value = 'Поразделение';
-		oCell.Style.ForegroundColor = '#CCCCCC';
-		oCell.Style.VerticalAlignment = 'Center';
-		oCell.Style.IsBold = true;
-		setMaxColWith(oCell.Value, 0);
-
-		oCell = oWorksheet.Cells.GetCell('C' + rindex);
-		oCell.Value = 'Структура';
-		oCell.Style.ForegroundColor = '#CCCCCC';
-		oCell.Style.VerticalAlignment = 'Center';
-		oCell.Style.IsBold = true;
-		setMaxColWith(oCell.Value, 0);
-
-		oCell = oWorksheet.Cells.GetCell('D' + rindex);
-		oCell.Value = 'Должность';
-		oCell.Style.ForegroundColor = '#CCCCCC';
-		oCell.Style.VerticalAlignment = 'Center';
-		oCell.Style.IsBold = true;
-		setMaxColWith(oCell.Value, 0);
-
-		oCell = oWorksheet.Cells.GetCell('E' + rindex);
-		oCell.Value = 'Название';
-		oCell.Style.ForegroundColor = '#CCCCCC';
-		oCell.Style.VerticalAlignment = 'Center';
-		oCell.Style.IsBold = true;
-		setMaxColWith(oCell.Value, 0);
-
-		oCell = oWorksheet.Cells.GetCell('F' + rindex);
-		oCell.Value = 'Дата начала';
-		oCell.Style.ForegroundColor = '#CCCCCC';
-		oCell.Style.VerticalAlignment = 'Center';
-		oCell.Style.IsBold = true;
-		setMaxColWith(oCell.Value, 0);
-
-		oCell = oWorksheet.Cells.GetCell('G' + rindex);
-		oCell.Value = 'Дата окончания';
-		oCell.Style.ForegroundColor = '#CCCCCC';
-		oCell.Style.VerticalAlignment = 'Center';
-		oCell.Style.IsBold = true;
-		setMaxColWith(oCell.Value, 0);
-
-		oCell = oWorksheet.Cells.GetCell('H' + rindex);
-		oCell.Value = 'Процент выполнения';
-		oCell.Style.ForegroundColor = '#CCCCCC';
-		oCell.Style.VerticalAlignment = 'Center';
-		oCell.Style.IsBold = true;
-		setMaxColWith(oCell.Value, 0);
-
-		oCell = oWorksheet.Cells.GetCell('I' + rindex);
-		oCell.Value = 'Статус';
-		oCell.Style.ForegroundColor = '#CCCCCC';
-		oCell.Style.VerticalAlignment = 'Center';
-		oCell.Style.IsBold = true;
-		setMaxColWith(oCell.Value, 0);
-
-		oCell = oWorksheet.Cells.GetCell('J' + rindex);
-		oCell.Value = 'Обязательно к прохождению';
-		oCell.Style.ForegroundColor = '#CCCCCC';
-		oCell.Style.VerticalAlignment = 'Center';
-		oCell.Style.IsBold = true;
-		setMaxColWith(oCell.Value, 0);
-
-		rindex = rindex + 1;
-
-		for(el in learningItems){
-			oCell = oWorksheet.Cells.GetCell('A' + rindex);
-			oCell.Value = String(el.person_fullname);
-			oCell.Style.FontColor = '#444444';
-			setMaxColWith(oCell.Value, 0); 
-
-			oCell = oWorksheet.Cells.GetCell('B' + rindex);
-			oCell.Value = String(el.person_subdivision_name);
-			oCell.Style.FontColor = '#444444';
-			setMaxColWith(oCell.Value, 1);
-
-			oCell = oWorksheet.Cells.GetCell('C' + rindex);
-			oCell.Value = String(el.structure);
-			oCell.Style.FontColor = '#444444';
-			setMaxColWith(oCell.Value, 2);
-
-			oCell = oWorksheet.Cells.GetCell('D' + rindex);
-			oCell.Value = String(el.person_position_name);
-			oCell.Style.FontColor = '#444444';
-			setMaxColWith(oCell.Value, 3); 
-
-			oCell = oWorksheet.Cells.GetCell('E' + rindex);
-			oCell.Value = String(el.learning_name);
-			oCell.Style.FontColor = '#444444';
-			setMaxColWith(oCell.Value, 4);
-
-			oCell = oWorksheet.Cells.GetCell('F' + rindex);
-			oCell.Value = String(el.start_usage_date);
-			oCell.Style.FontColor = '#444444';
-			setMaxColWith(oCell.Value, 5);
-
-			oCell = oWorksheet.Cells.GetCell('G' + rindex);
-			oCell.Value = String(el.last_usage_date);
-			oCell.Style.FontColor = '#444444';
-			setMaxColWith(oCell.Value, 6);
-
-			oCell = oWorksheet.Cells.GetCell('H' + rindex);
-			oCell.Value = String(el.percent_score);
-			oCell.Style.FontColor = '#444444';
-			setMaxColWith(oCell.Value, 7);
-
-			oCell = oWorksheet.Cells.GetCell('I' + rindex);
-			oCell.Value = String(el.status);
-			oCell.Style.FontColor = '#444444';
-			setMaxColWith(oCell.Value, 8);
-
-			oCell = oWorksheet.Cells.GetCell('J' + rindex);
-			oCell.Value = String(el.passing_require) == '1' ? 'Да' : 'Нет';
-			oCell.Style.FontColor = '#444444';
-			setMaxColWith(oCell.Value, 8);
-
-			rindex = rindex + 1;
-		}
-
-		for (i = 0; i < colWidths.length; i++){
-			oWorksheet.Cells.SetColumnWidth(i, colWidths[i]);
-		}
-
-		oWorksheet.Cells.SetRowHeight(2, 30.0);
-		oExcelDoc.SaveAs(path);
-		return path;
 	}
 
 	function get_LearningsReport() {
@@ -578,11 +322,11 @@
 			return _Utils.setError('Пользователь не найден или не является руководителем');
 		}
 
-		var ls = _Learnings.getLearnings(Int(u.position_parent_id));
+		var ls = _LearningsRequests.getLearnings(Int(u.position_parent_id));
 		var excelPath = '';
 
 		try {
-			excelPath = _report(ls);
+			excelPath = Report.create(ls);
 		} catch(e) {
 			alert('e: ' + e);
 			return _Utils.setError(e);
@@ -590,7 +334,6 @@
 		
 		Request.AddRespHeader('Content-Type', 'application/octet-stream');
 		Request.AddRespHeader('Content-disposition', 'attachment; filename=report.xlsx');
-		//Response.Write(LoadFileData(path));
 		return LoadFileData(excelPath);
 	}
 
@@ -600,11 +343,11 @@
 			return _Utils.setError('Пользователь не найден или не является руководителем');
 		}
 
-		var tls = _Learnings.getTestLearnings(Int(u.position_parent_id));
+		var tls = _LearningsRequests.getTestLearnings(Int(u.position_parent_id));
 		var excelPath = '';
 
 		try {
-			excelPath = _report(tls);
+			excelPath = Report.create(tls);
 		} catch(e) {
 			alert('e: ' + e);
 			return _Utils.setError(e);
@@ -613,60 +356,43 @@
 		Request.AddRespHeader('Content-Type', 'application/octet-stream');
 		Request.AddRespHeader('Content-disposition', 'attachment; filename=report.xlsx');
 		return LoadFileData(excelPath);
-		//Response.Write(LoadFileData(path));
 	}
 
 	function post_ActivateCoursesByFile(queryObjects) {
 		var formData = queryObjects.Request.Form;
-		var file = formData.filepond;
+		var file = formData.file;
 
-		var tempFileUrl = UrlToFilePath(ObtainTempFile('.xls'));
+		var tempFilePath = UserDataDirectoryPath() + '\\datex_user_temp\\' + curUserID;
+		var filePath = '';
 
 		try {
-			PutFileData(tempFileUrl, file);
+			ObtainDirectory(tempFilePath, true);
+			filePath = tempFilePath + '\\' + DateToRawSeconds(Date()) + '.xls';
+			PutFileData(filePath, file);
 		} catch(e) {
 			return _Utils.setError(e);
 		}
 
-		var errors = _ActivateLearnings.activateCourses(tempFileUrl);
-		if (errors != undefined) {
-			return _Utils.setError(errors);
-		}
+		var rObj = _ActivateLearnings.activateCoursesByFile(filePath, formData.is_require_settings_passing, formData.selected_settings_passing_period, formData.settings_date);
+		return _Utils.setSuccess(rObj);
 	}
 
 	function post_ActivateAssementsByFile(queryObjects) {
 		var formData = queryObjects.Request.Form;
 		var file = formData.file;
 
-		/*var docRes = tools.new_doc_by_name('resource');
-		docRes.TopElem.file_name = 'for_test';
-		docRes.TopElem.name = 'for_test';
-		docRes.BindToDb();
-		docRes.TopElem.put_str(file, 'for_test');
-		docRes.Save();*/
-
-		//alert(tools.object_to_text(file, 'json'));
-		//var tempFileUrl = UrlToFilePath(ObtainTempFile('.xlsx'));
-		//MoveFile(tempFileUrl, 'E:\\');
-
-
-		var tempFileUrl = UserDataDirectoryPath() + '\\datex_user_temp\\' + curUserID;
+		var tempFilePath = UserDataDirectoryPath() + '\\datex_user_temp\\' + curUserID;
 		var filePath = '';
 
 		try {
-			ObtainDirectory(tempFileUrl, true);
-			filePath = tempFileUrl + '\\' + DateToRawSeconds(Date()) + '.xls';
-			alert('filePath: ' + filePath);
+			ObtainDirectory(tempFilePath, true);
+			filePath = tempFilePath + '\\' + DateToRawSeconds(Date()) + '.xls';
 			PutFileData(filePath, file);
 		} catch(e) {
 			return _Utils.setError(e);
 		}
 
-		alert('FilePathToUrl(filePath):' +FilePathToUrl(filePath));
-
-		var errors = _ActivateLearnings.activateAssessments(FilePathToUrl(filePath));
-		if (errors != undefined) {
-			return _Utils.setError(errors);
-		}
+		var rObj = _ActivateLearnings.activateAssessmentsByFile(filePath, formData.is_require_settings_passing, formData.selected_settings_passing_period, formData.settings_date);
+		return _Utils.setSuccess(rObj);
 	}
 %>

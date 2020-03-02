@@ -11,7 +11,8 @@ export const constants = {
 	'INFO': 'INFO',
 	'LOADING_LIST': 'LOADING_LIST',
 	'SELECT_ITEM': 'SELECT_ITEM',
-	'SET_SEARCH': 'SET_SEARCH'
+	'SET_SEARCH': 'SET_SEARCH',
+	'FILE_UPLOADED': 'FILE_UPLOADED'
 };
 
 export function loading(isLoading){
@@ -62,6 +63,13 @@ export function selectItem(checked, item) {
 			checked,
 			item
 		}
+	}
+}
+
+export function onFileUploaded(data) {
+	return {
+		type: constants.FILE_UPLOADED,
+		payload: data
 	}
 }
 

@@ -4,6 +4,11 @@ const appReducer = (state = {
 	subordinates: [],
 	selectedSubordinates: [],
 	user: {},
+	fileUploaded: {
+		isUpload: false,
+		count: 0,
+		error: ''
+	},
 	meta: {
 		search: '',
 		total: 0,
@@ -91,6 +96,16 @@ const appReducer = (state = {
 				meta: {
 					...state.meta,
 					search: action.payload
+				}
+			}
+		}
+
+		case constants.FILE_UPLOADED: {
+			return {
+				...state,
+				fileUploaded: {
+					isUpload: true,
+					...action.payload
 				}
 			}
 		}

@@ -39,3 +39,12 @@
 .learnings-settings__passing-period {
 	margin-bottom: 4px !important;
 }
+
+.learnings-upload-file {
+	margin-top: 20px;
+    background-color: aliceblue !important;
+}
+
+.learnings-upload-file-message{
+	margin-top: 30px !important;
+}
