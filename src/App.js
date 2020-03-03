@@ -27,6 +27,8 @@ import moment from 'moment';
 import locale from 'antd/es/date-picker/locale/ru_RU';
 //import 'filepond/dist/filepond.min.css';
 
+const defaultDateFormat = 'YYYY-MM-DD';
+
 class App extends Component {
 
 	constructor(props) {
@@ -55,7 +57,7 @@ class App extends Component {
 			isShowAddedInfo: false,
 			isRequireSettingsPassing: true,
 			selectedSettingsPassingPeriod: 1,
-			settingsDate: moment(new Date(), 'DD.MM.YYYY'),
+			settingsDate: moment(new Date(), defaultDateFormat),
 			isShowUploadFile: false
 		}
 	}
@@ -86,7 +88,7 @@ class App extends Component {
 			settingsDate
 		} = this.state;
 
-		assignLearnings(this.learningType, this.selectAllLearnings, isRequireSettingsPassing, selectedSettingsPassingPeriod, settingsDate);
+		assignLearnings(this.learningType, this.selectAllLearnings, isRequireSettingsPassing, selectedSettingsPassingPeriod, settingsDate.format(defaultDateFormat));
 
 		this.setState({
 			isShowItems: false,
@@ -350,7 +352,7 @@ class App extends Component {
 										<Radio value={1}>Выставить срок прохождения</Radio>
 										<Radio value={2}>Оставить срок по умолчанию, заданный в карточке курса</Radio>
 									</Radio.Group>
-									{selectedSettingsPassingPeriod === 1 && <DatePicker defaultValue={settingsDate} onChange={this.handleChangeDateSettings} locale={locale}/>}
+									{selectedSettingsPassingPeriod === 1 && <DatePicker allowClear={false} defaultValue={settingsDate} onChange={this.handleChangeDateSettings} locale={locale}/>}
 								</div>
 							</div>
 						</Modal>
@@ -374,7 +376,7 @@ class App extends Component {
 										<Radio value={1}>Выставить срок прохождения</Radio>
 										<Radio value={2}>Оставить срок по умолчанию, заданный в карточке курса</Radio>
 									</Radio.Group>
-									{selectedSettingsPassingPeriod === 1 && <DatePicker defaultValue={settingsDate} onChange={this.handleChangeDateSettings} locale={locale}/>}
+									{selectedSettingsPassingPeriod === 1 && <DatePicker allowClear={false} defaultValue={settingsDate} onChange={this.handleChangeDateSettings} locale={locale}/>}
 								</div>
 							</div>
 
@@ -395,7 +397,7 @@ class App extends Component {
 								data={{
 									is_require_settings_passing: isRequireSettingsPassing,
 									selected_settings_passing_period: selectedSettingsPassingPeriod,
-									settings_date: settingsDate
+									settings_date: settingsDate.format(defaultDateFormat)
 								}}
 							>
 								<Button className='learnings-upload-file'>

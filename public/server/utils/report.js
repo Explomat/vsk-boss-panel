@@ -29,70 +29,77 @@ function create(learningItems){
 	var	rindex = 1;
 
 	oCell = oWorksheet.Cells.GetCell('A' + rindex);
-	oCell.Value = 'Р¤РРћ';
+	oCell.Value = 'ФИО';
 	oCell.Style.ForegroundColor = '#CCCCCC';
 	oCell.Style.VerticalAlignment = 'Center';
 	oCell.Style.IsBold = true;
 	setMaxColWith(oCell.Value, 0);
 
 	oCell = oWorksheet.Cells.GetCell('B' + rindex);
-	oCell.Value = 'РџРѕСЂР°Р·РґРµР»РµРЅРёРµ';
+	oCell.Value = 'Подразделение';
 	oCell.Style.ForegroundColor = '#CCCCCC';
 	oCell.Style.VerticalAlignment = 'Center';
 	oCell.Style.IsBold = true;
 	setMaxColWith(oCell.Value, 0);
 
 	oCell = oWorksheet.Cells.GetCell('C' + rindex);
-	oCell.Value = 'РЎС‚СЂСѓРєС‚СѓСЂР°';
+	oCell.Value = 'Структура';
 	oCell.Style.ForegroundColor = '#CCCCCC';
 	oCell.Style.VerticalAlignment = 'Center';
 	oCell.Style.IsBold = true;
 	setMaxColWith(oCell.Value, 0);
 
 	oCell = oWorksheet.Cells.GetCell('D' + rindex);
-	oCell.Value = 'Р”РѕР»Р¶РЅРѕСЃС‚СЊ';
+	oCell.Value = 'Должность';
 	oCell.Style.ForegroundColor = '#CCCCCC';
 	oCell.Style.VerticalAlignment = 'Center';
 	oCell.Style.IsBold = true;
 	setMaxColWith(oCell.Value, 0);
 
 	oCell = oWorksheet.Cells.GetCell('E' + rindex);
-	oCell.Value = 'РќР°Р·РІР°РЅРёРµ';
+	oCell.Value = 'Название';
 	oCell.Style.ForegroundColor = '#CCCCCC';
 	oCell.Style.VerticalAlignment = 'Center';
 	oCell.Style.IsBold = true;
 	setMaxColWith(oCell.Value, 0);
 
 	oCell = oWorksheet.Cells.GetCell('F' + rindex);
-	oCell.Value = 'Р”Р°С‚Р° РЅР°С‡Р°Р»Р°';
+	oCell.Value = 'Дата начала';
 	oCell.Style.ForegroundColor = '#CCCCCC';
 	oCell.Style.VerticalAlignment = 'Center';
 	oCell.Style.IsBold = true;
 	setMaxColWith(oCell.Value, 0);
 
 	oCell = oWorksheet.Cells.GetCell('G' + rindex);
-	oCell.Value = 'Р”Р°С‚Р° РѕРєРѕРЅС‡Р°РЅРёСЏ';
+	oCell.Value = 'Дата последнего посещения';
 	oCell.Style.ForegroundColor = '#CCCCCC';
 	oCell.Style.VerticalAlignment = 'Center';
 	oCell.Style.IsBold = true;
 	setMaxColWith(oCell.Value, 0);
 
 	oCell = oWorksheet.Cells.GetCell('H' + rindex);
-	oCell.Value = 'РџСЂРѕС†РµРЅС‚ РІС‹РїРѕР»РЅРµРЅРёСЏ';
+	oCell.Value = 'Дата планируемого завершения';
 	oCell.Style.ForegroundColor = '#CCCCCC';
 	oCell.Style.VerticalAlignment = 'Center';
 	oCell.Style.IsBold = true;
 	setMaxColWith(oCell.Value, 0);
 
 	oCell = oWorksheet.Cells.GetCell('I' + rindex);
-	oCell.Value = 'РЎС‚Р°С‚СѓСЃ';
+	oCell.Value = 'Процент выполнения';
 	oCell.Style.ForegroundColor = '#CCCCCC';
 	oCell.Style.VerticalAlignment = 'Center';
 	oCell.Style.IsBold = true;
 	setMaxColWith(oCell.Value, 0);
 
 	oCell = oWorksheet.Cells.GetCell('J' + rindex);
-	oCell.Value = 'РћР±СЏР·Р°С‚РµР»СЊРЅРѕ Рє РїСЂРѕС…РѕР¶РґРµРЅРёСЋ';
+	oCell.Value = 'Статус';
+	oCell.Style.ForegroundColor = '#CCCCCC';
+	oCell.Style.VerticalAlignment = 'Center';
+	oCell.Style.IsBold = true;
+	setMaxColWith(oCell.Value, 0);
+
+	oCell = oWorksheet.Cells.GetCell('K' + rindex);
+	oCell.Value = 'Обязательно к прохождению';
 	oCell.Style.ForegroundColor = '#CCCCCC';
 	oCell.Style.VerticalAlignment = 'Center';
 	oCell.Style.IsBold = true;
@@ -136,18 +143,25 @@ function create(learningItems){
 		oCell.Style.FontColor = '#444444';
 		setMaxColWith(oCell.Value, 6);
 
+
 		oCell = oWorksheet.Cells.GetCell('H' + rindex);
+		oCell.Value = String(el.max_end_date);
+		oCell.Style.FontColor = '#444444';
+		setMaxColWith(oCell.Value, 6);
+
+
+		oCell = oWorksheet.Cells.GetCell('I' + rindex);
 		oCell.Value = String(el.percent_score);
 		oCell.Style.FontColor = '#444444';
 		setMaxColWith(oCell.Value, 7);
 
-		oCell = oWorksheet.Cells.GetCell('I' + rindex);
+		oCell = oWorksheet.Cells.GetCell('J' + rindex);
 		oCell.Value = String(el.status);
 		oCell.Style.FontColor = '#444444';
 		setMaxColWith(oCell.Value, 8);
 
-		oCell = oWorksheet.Cells.GetCell('J' + rindex);
-		oCell.Value = String(el.passing_require) == '1' ? 'Р”Р°' : 'РќРµС‚';
+		oCell = oWorksheet.Cells.GetCell('K' + rindex);
+		oCell.Value = String(el.passing_require) == '1' ? 'Да' : 'Нет';
 		oCell.Style.FontColor = '#444444';
 		setMaxColWith(oCell.Value, 8);
 

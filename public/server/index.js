@@ -1,7 +1,7 @@
 <%
 	//curUserID = 6605153029051275340; //Zayats
 	//curUserID = 6605155987556877175; // Анапольский
-	curUserID = 6719946806941395578; //Асафов тест
+	//curUserID = 6719946806941395578; //Асафов тест
 	//curUserID = 6605156452417082406; // Асафов 
 	//curUserID = 6711785032659205612; //Me test
 
@@ -307,6 +307,7 @@
 			for (cl in cls){
 
 				try {
+					//alert('=====123=======');
 					_ActivateLearnings.activateAssessmentWithSettings(cl.id, at.id, isRequirePassing, passingPeriod, settingsDate);
 				} catch(e) {
 					errors = errors + e;

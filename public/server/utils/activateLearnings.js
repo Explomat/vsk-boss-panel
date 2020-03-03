@@ -1,8 +1,13 @@
 function activateAssessmentWithSettings(collaboratorId, learningId, isRequirePassing, passingPeriod, settingsDate) {
+	//alert("=========0000000========");
+	//var MyTools = OpenCodeLib('x-local://wt/web/vsk/portal/boss-panel/server/utils/mytools.js');
+	//DropFormsCache('x-local://wt/web/vsk/portal/boss-panel/server/utils/mytools.js');
+
 	doc = null;
 
+	//alert("======11111========");
 	try {
-		if (passingPeriod == 1) {
+		if (String(passingPeriod) == '1') {
 			diffDateSeconds = null;
 			diffDays = null;
 
@@ -15,8 +20,17 @@ function activateAssessmentWithSettings(collaboratorId, learningId, isRequirePas
 			}
 
 			if (diffDays != null) {
+				//alert("======1234=========");
+				//убираем флаг, чтобы не отправлялись уведомления
+				aDoc = OpenDoc(UrlFromDocID(Int(learningId)));
+				aDoc.TopElem.not_use_default_notification = true;
+				aDoc.Save();
+
 				doc = tools.activate_test_to_person(collaboratorId, learningId); //tools.activate_test_to_person(cl.id, at.id);
 
+				aDoc.TopElem.not_use_default_notification = false;
+				aDoc.Save();
+				//alert("======1235=========");
 				try {
 					doc.TopElem
 				} catch (e) {
@@ -27,7 +41,14 @@ function activateAssessmentWithSettings(collaboratorId, learningId, isRequirePas
 				doc.TopElem.max_end_date = Date(settingsDate);
 			}
 		} else {
+			aDoc = OpenDoc(UrlFromDocID(Int(learningId)));
+			aDoc.TopElem.not_use_default_notification = true;
+			aDoc.Save();
+
 			doc = tools.activate_test_to_person(collaboratorId, learningId); //tools.activate_test_to_person(cl.id, at.id);
+
+			aDoc.TopElem.not_use_default_notification = false;
+			aDoc.Save();
 		}
 		
 		if (doc != null) {
@@ -39,20 +60,26 @@ function activateAssessmentWithSettings(collaboratorId, learningId, isRequirePas
 
 			doc.TopElem.custom_elems.ObtainChildByKey('passing_require').value = isRequirePassing;
 			doc.Save();
+
+			tools.create_notification('31', doc.DocID);
+			tools.create_notification('33', doc.DocID);
 		} else {
 			throw 'Ошибка при создании документа';
 		}
 
 	} catch(e) {
-		throw 'Ошибка при назначении! \r\nТест "' + String(at.title) + '", сотрудник "' + cl.fullname + '" : \r\n' + e + '\r\n';
+		throw 'Ошибка при назначении! \r\nТест "' + learningId + '", сотрудник "' + collaboratorId + '" : \r\n' + e + '\r\n';
 	}
 }
 
 function activateCourseWithSettings(collaboratorId, learningId, isRequirePassing, passingPeriod, settingsDate) {
+	//var MyTools = OpenCodeLib('x-local://wt/web/vsk/portal/boss-panel/server/utils/mytools.js');
+	//DropFormsCache('x-local://wt/web/vsk/portal/boss-panel/server/utils/mytools.js');
+
 	doc = null;
 
 	try {
-		if (passingPeriod == 1) {
+		if (String(passingPeriod) == '1') {
 			diffDateSeconds = null;
 			diffDays = null;
 
@@ -65,7 +92,15 @@ function activateCourseWithSettings(collaboratorId, learningId, isRequirePassing
 			}
 
 			if (diffDays != null) {
+
+				aDoc = OpenDoc(UrlFromDocID(Int(learningId)));
+				aDoc.TopElem.not_use_default_notification = true;
+				aDoc.Save();
+
 				doc = tools.activate_course_to_person(collaboratorId, learningId);
+
+				aDoc.TopElem.not_use_default_notification = false;
+				aDoc.Save();
 
 				try {
 					doc.TopElem
@@ -77,7 +112,14 @@ function activateCourseWithSettings(collaboratorId, learningId, isRequirePassing
 				doc.TopElem.max_end_date = Date(settingsDate);
 			}
 		} else {
+			aDoc = OpenDoc(UrlFromDocID(Int(learningId)));
+			aDoc.TopElem.not_use_default_notification = true;
+			aDoc.Save();
+
 			doc = tools.activate_course_to_person(collaboratorId, learningId);
+
+			aDoc.TopElem.not_use_default_notification = false;
+			aDoc.Save();
 		}
 		
 		if (doc != null) {
@@ -89,12 +131,15 @@ function activateCourseWithSettings(collaboratorId, learningId, isRequirePassing
 
 			doc.TopElem.custom_elems.ObtainChildByKey('passing_require').value = isRequirePassing;
 			doc.Save();
+
+			tools.create_notification('30', doc.DocID);
+			tools.create_notification('32', doc.DocID);
 		} else {
 			throw 'Ошибка при создании документа';
 		}
 
 	} catch(e) {
-		throw 'Ошибка при назначении! \r\nТест "' + String(at.title) + '", сотрудник "' + cl.fullname + '" : \r\n' + e + '\r\n';
+		throw 'Ошибка при назначении! \r\nТест "' + learningId + '", сотрудник "' + collaboratorId + '" : \r\n' + e + '\r\n';
 	}
 }
 

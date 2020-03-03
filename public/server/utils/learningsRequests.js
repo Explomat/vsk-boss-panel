@@ -8,6 +8,7 @@ function getLearnings(subId) {
 			d.learning_name, \n\
 			d.start_usage_date, \n\
 			d.last_usage_date, \n\
+			d.max_end_date, \n\
 			d.percent_score, \n\
 			d.[status], \n\
 			case d.passing_require \n\
@@ -27,6 +28,7 @@ function getLearnings(subId) {
 				ls.course_name learning_name, \n\
 				ls.start_usage_date, \n\
 				ls.last_usage_date, \n\
+				ls.max_end_date, \n\
 				case \n\
 					when cs.max_score = 0 then null \n\
 					else cast(ls.score as varchar) + '(' + cast(round((ls.score / cs.max_score) * 100, 0) as varchar) + '%)' \n\
@@ -57,6 +59,7 @@ function getLearnings(subId) {
 				als.course_name learning_name, \n\
 				als.start_usage_date, \n\
 				als.last_usage_date, \n\
+				als.max_end_date, \n\
 				case \n\
 					when cs.max_score = 0 then null \n\
 					else cast(als.score as varchar) + '(' + cast(round((als.score / cs.max_score) * 100, 0) as varchar) + '%)'  \n\
@@ -88,6 +91,7 @@ function getTestLearnings(subId) {
 			d.learning_name, \n\
 			d.start_usage_date, \n\
 			d.last_usage_date, \n\
+			d.max_end_date, \n\
 			d.percent_score, \n\
 			d.[status], \n\
 			case d.passing_require \n\
@@ -107,6 +111,7 @@ function getTestLearnings(subId) {
 				ls.assessment_name learning_name, \n\
 				ls.start_usage_date, \n\
 				ls.last_usage_date, \n\
+				ls.max_end_date, \n\
 				case \n\
 					when cs.passing_score = 0 then null \n\
 					else cast(ls.score as varchar) + '(' + cast(round((ls.score / cs.passing_score) * 100, 0) as varchar) + '%)' \n\
@@ -137,6 +142,7 @@ function getTestLearnings(subId) {
 				als.assessment_name learning_name, \n\
 				als.start_usage_date, \n\
 				als.last_usage_date, \n\
+				als.max_end_date, \n\
 				case \n\
 					when cs.passing_score = 0 then null \n\
 					else cast(als.score as varchar) + '(' + cast(round((als.score / cs.passing_score) * 100, 0) as varchar) + '%)'  \n\
