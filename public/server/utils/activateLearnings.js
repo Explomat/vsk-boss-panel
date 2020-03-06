@@ -3,13 +3,13 @@ function activateAssessmentWithSettings(collaboratorId, learningId, isRequirePas
 	//var MyTools = OpenCodeLib('x-local://wt/web/vsk/portal/boss-panel/server/utils/mytools.js');
 	//DropFormsCache('x-local://wt/web/vsk/portal/boss-panel/server/utils/mytools.js');
 
-	doc = null;
+	var doc = null;
 
 	//alert("======11111========");
 	try {
 		if (String(passingPeriod) == '1') {
-			diffDateSeconds = null;
-			diffDays = null;
+			var diffDateSeconds = null;
+			var diffDays = null;
 
 			try {
 				diffDateSeconds = DateDiff(Date(settingsDate), Date());
@@ -22,7 +22,7 @@ function activateAssessmentWithSettings(collaboratorId, learningId, isRequirePas
 			if (diffDays != null) {
 				//alert("======1234=========");
 				//убираем флаг, чтобы не отправлялись уведомления
-				aDoc = OpenDoc(UrlFromDocID(Int(learningId)));
+				var aDoc = OpenDoc(UrlFromDocID(Int(learningId)));
 				aDoc.TopElem.not_use_default_notification = true;
 				aDoc.Save();
 
@@ -41,11 +41,16 @@ function activateAssessmentWithSettings(collaboratorId, learningId, isRequirePas
 				doc.TopElem.max_end_date = Date(settingsDate);
 			}
 		} else {
-			aDoc = OpenDoc(UrlFromDocID(Int(learningId)));
+			var aDoc = OpenDoc(UrlFromDocID(Int(learningId)));
 			aDoc.TopElem.not_use_default_notification = true;
 			aDoc.Save();
 
-			doc = tools.activate_test_to_person(collaboratorId, learningId); //tools.activate_test_to_person(cl.id, at.id);
+			
+			doc = tools.activate_test_to_person(collaboratorId, learningId);
+			var weeksSeconds = 3 * 7 * 24 * 60 * 60;
+			var weeksDays = 3 * 7;
+			doc.TopElem.max_end_date = DateOffset(DateNewTime(Date()), weeksSeconds);
+			doc.TopElem.duration = weeksDays;
 
 			aDoc.TopElem.not_use_default_notification = false;
 			aDoc.Save();
@@ -76,12 +81,12 @@ function activateCourseWithSettings(collaboratorId, learningId, isRequirePassing
 	//var MyTools = OpenCodeLib('x-local://wt/web/vsk/portal/boss-panel/server/utils/mytools.js');
 	//DropFormsCache('x-local://wt/web/vsk/portal/boss-panel/server/utils/mytools.js');
 
-	doc = null;
+	var doc = null;
 
 	try {
 		if (String(passingPeriod) == '1') {
-			diffDateSeconds = null;
-			diffDays = null;
+			var diffDateSeconds = null;
+			var diffDays = null;
 
 			try {
 				diffDateSeconds = DateDiff(Date(settingsDate), Date());
@@ -93,7 +98,7 @@ function activateCourseWithSettings(collaboratorId, learningId, isRequirePassing
 
 			if (diffDays != null) {
 
-				aDoc = OpenDoc(UrlFromDocID(Int(learningId)));
+				var aDoc = OpenDoc(UrlFromDocID(Int(learningId)));
 				aDoc.TopElem.not_use_default_notification = true;
 				aDoc.Save();
 
@@ -112,11 +117,15 @@ function activateCourseWithSettings(collaboratorId, learningId, isRequirePassing
 				doc.TopElem.max_end_date = Date(settingsDate);
 			}
 		} else {
-			aDoc = OpenDoc(UrlFromDocID(Int(learningId)));
+			var aDoc = OpenDoc(UrlFromDocID(Int(learningId)));
 			aDoc.TopElem.not_use_default_notification = true;
 			aDoc.Save();
 
 			doc = tools.activate_course_to_person(collaboratorId, learningId);
+			var weeksSeconds = 3 * 7 * 24 * 60 * 60;
+			var weeksDays = 3 * 7;
+			doc.TopElem.max_end_date = DateOffset(DateNewTime(Date()), weeksSeconds);
+			doc.TopElem.duration = weeksDays;
 
 			aDoc.TopElem.not_use_default_notification = false;
 			aDoc.Save();
