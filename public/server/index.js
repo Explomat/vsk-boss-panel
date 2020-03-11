@@ -359,7 +359,7 @@
 		return LoadFileData(excelPath);
 	}
 
-	function post_ActivateCoursesByFile(queryObjects) {
+	function post_UploadCoursesFile(queryObjects) {
 		var formData = queryObjects.Request.Form;
 		var file = formData.file;
 
@@ -370,30 +370,83 @@
 			ObtainDirectory(tempFilePath, true);
 			filePath = tempFilePath + '\\' + DateToRawSeconds(Date()) + '.xls';
 			PutFileData(filePath, file);
+			Request.Session.boss_panel = {};
+			Request.Session.boss_panel.file_upload_path = filePath;
+
+			var info = _ActivateLearnings.getCoursesInfoByFile(filePath);
+			return _Utils.setSuccess(info);
 		} catch(e) {
 			return _Utils.setError(e);
 		}
+	}
 
-		var rObj = _ActivateLearnings.activateCoursesByFile(filePath, formData.is_require_settings_passing, formData.selected_settings_passing_period, formData.settings_date);
-		return _Utils.setSuccess(rObj);
+	function post_UploadAssementsFile(queryObjects) {
+		var formData = queryObjects.Request.Form;
+		var file = formData.file;
+
+		var tempFilePath = UserDataDirectoryPath() + '\\datex_user_temp\\' + curUserID;
+		var filePath = '';
+
+		try {
+			ObtainDirectory(tempFilePath, true);
+			filePath = tempFilePath + '\\' + DateToRawSeconds(Date()) + '.xls';
+			PutFileData(filePath, file);
+			Request.Session.boss_panel = {};
+			Request.Session.boss_panel.file_upload_path = filePath;
+			//alert(tools.object_to_text(Request.Session, 'json'));
+
+			var info = _ActivateLearnings.getAssessmentsInfoByFile(filePath);
+			return _Utils.setSuccess(info);
+		} catch(e) {
+			return _Utils.setError(e);
+		}
+	}
+
+	function post_ActivateCoursesByFile(queryObjects) {
+		var filePath = null;
+		var mode = Request.Session.GetOptProperty('boss_panel');
+		if (mode != undefined) {
+			filePath = mode.GetOptProperty('file_upload_path');
+		}
+
+		if (filePath != undefined && filePath != null) {
+			var data = tools.read_object(queryObjects.Body);
+			var isRequirePassing = data.HasProperty('is_require_settings_passing') ? data.is_require_settings_passing : false;
+			var passingPeriod = data.HasProperty('selected_settings_passing_period') ? data.selected_settings_passing_period : 2;
+			var settingsDate = data.HasProperty('settings_date') ? data.settings_date : null;
+
+			var rObj = _ActivateLearnings.activateCoursesByFile(filePath, isRequirePassing, passingPeriod, settingsDate);
+			return _Utils.setSuccess(rObj);
+		}
+
+		return _Utils.setError('Неизвестная ошибка');
 	}
 
 	function post_ActivateAssementsByFile(queryObjects) {
-		var formData = queryObjects.Request.Form;
-		var file = formData.file;
-
-		var tempFilePath = UserDataDirectoryPath() + '\\datex_user_temp\\' + curUserID;
-		var filePath = '';
-
-		try {
-			ObtainDirectory(tempFilePath, true);
-			filePath = tempFilePath + '\\' + DateToRawSeconds(Date()) + '.xls';
-			PutFileData(filePath, file);
-		} catch(e) {
-			return _Utils.setError(e);
+		var filePath = null;
+		var mode = Request.Session.GetOptProperty('boss_panel');
+		if (mode != undefined) {
+			filePath = mode.GetOptProperty('file_upload_path');
 		}
 
-		var rObj = _ActivateLearnings.activateAssessmentsByFile(filePath, formData.is_require_settings_passing, formData.selected_settings_passing_period, formData.settings_date);
-		return _Utils.setSuccess(rObj);
+		if (filePath != undefined && filePath != null) {
+			var data = tools.read_object(queryObjects.Body);
+			var isRequirePassing = data.HasProperty('is_require_settings_passing') ? data.is_require_settings_passing : false;
+			var passingPeriod = data.HasProperty('selected_settings_passing_period') ? data.selected_settings_passing_period : 2;
+			var settingsDate = data.HasProperty('settings_date') ? data.settings_date : null;
+
+			var rObj = _ActivateLearnings.activateAssessmentsByFile(filePath, isRequirePassing, passingPeriod, settingsDate);
+			return _Utils.setSuccess(rObj);
+		}
+
+		/*var data = tools.read_object(queryObjects.Body);
+		var isRequirePassing = data.HasProperty('is_require_settings_passing') ? data.is_require_settings_passing : false;
+		var passingPeriod = data.HasProperty('selected_settings_passing_period') ? data.selected_settings_passing_period : 2;
+		var settingsDate = data.HasProperty('settings_date') ? data.settings_date : null;
+
+		var rObj = _ActivateLearnings.activateAssessmentsByFile('E:\\WebSoft\\WebTutorServer\\datex_user_temp\\6719946806941395578\\1583922249.xls', isRequirePassing, passingPeriod, settingsDate);
+		return _Utils.setSuccess(rObj);*/
+
+		return _Utils.setError('Неизвестная ошибка');
 	}
 %>

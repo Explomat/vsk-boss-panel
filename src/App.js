@@ -12,15 +12,14 @@ import {
 	Dropdown,
 	Checkbox,
 	DatePicker,
-	Radio,
-	Upload
+	Radio
 } from 'antd';
-//import { FilePond } from 'react-filepond';
 import SubordinateList from './app/SubordinateList';
 import LearningsList from './app/learnings/LearningsList';
+import UploadFile from './components/uploadFile';
 import { connect } from 'react-redux';
-import { getSubordinates, selectItem, onFileUploaded, error, info } from './appActions';
-import { resetSelectedLearnings, assignLearnings } from './app/learnings/learningActions';
+import { getSubordinates, selectItem, onFileUploaded, resetFileUploaded, error, info } from './appActions';
+import { resetSelectedLearnings, assignLearnings, assignLearningsByFile } from './app/learnings/learningActions';
 import { createBaseUrl } from './utils/request';
 import './App.css';
 import moment from 'moment';
@@ -28,50 +27,6 @@ import { ConfigProvider } from 'antd';
 import ruRU from 'antd/es/locale/ru_RU';
 import 'moment/locale/ru';
 moment.locale('ru');
-
-/*import locale from 'antd/es/date-picker/locale/ru_RU';
-moment.locale('ru');*/
-
-/*const ruLocal = {
-  "lang": {
-    "locale": "ru_RU",
-    "placeholder": "Выберите срок прохождения",
-    "rangePlaceholder": ["Начальная дата", "Конечная дата"],
-    "today": "Сегодня",
-    "now": "Сейчас",
-    "backToToday": "Вернуться",
-    "ok": "Ok",
-    "clear": "Очистить",
-    "month": "Месяц",
-    "year": "Год",
-    "timeSelect": "Выбранное время",
-    "dateSelect": "Выбранная дата",
-    "monthSelect": "Выберите месяц",
-    "yearSelect": "Выберите год",
-    "decadeSelect": "Выберите десятилетие",
-    "yearFormat": "YYYY",
-    "dateFormat": "DD/MM/YYYY",
-    "dayFormat": "D",
-    "dateTimeFormat": "DD/MM/YYYY HH:mm:ss",
-    "monthFormat": "MMMM",
-    "monthBeforeYear": true,
-    "previousMonth": "Предыдущий месяц (PageUp)",
-    "nextMonth": "Следующий месяц (PageDown)",
-    "previousYear": "Предыдущий год (Control + left)",
-    "nextYear": "Следующий год (Control + right)",
-    "previousDecade": "Предыдущее десятилетие",
-    "nextDecade": "Следующее десятилетие",
-    "previousCentury": "Предыдущий век",
-    "nextCentury": "Следующий век"
-  },
-  "timePickerLocale": {
-    "placeholder": "Выберите время"
-  },
-  "dateFormat": "",
-  "dateTimeFormat": "DD-MM-YYYY HH:mm:ss",
-  "weekFormat": "YYYY-wo",
-  "monthFormat": "YYYY-MM"
-}*/
 
 const defaultDateFormat = 'YYYY-MM-DD';
 
@@ -91,6 +46,7 @@ class App extends Component {
 		this.handleChangeDateSettings = this.handleChangeDateSettings.bind(this);
 		this.onAssignLearnings = this.onAssignLearnings.bind(this);
 		this.handleToggleFromFile = this.handleToggleFromFile.bind(this);
+		this.handleAssignLearnings = this.handleAssignLearnings.bind(this);
 
 		this.selectAllLearnings = false;
 		this.learningType = null;
@@ -112,14 +68,24 @@ class App extends Component {
 		this.props.getSubordinates();
 	}
 
+	handleAssignLearnings() {
+		const { isRequireSettingsPassing, selectedSettingsPassingPeriod, settingsDate } = this.state;
+
+		const data={
+			is_require_settings_passing: isRequireSettingsPassing,
+			selected_settings_passing_period: selectedSettingsPassingPeriod,
+			settings_date: settingsDate ? settingsDate.format(defaultDateFormat) : null
+		}
+
+		this.props.assignLearningsByFile(this.fileType, data);								
+	}
+
 	handleToggleFromFile(type) {
 		this.fileType = type;
 
-		this.props.onFileUploaded({
-			error: '',
-			count: 0,
-			isUpload: false
-		});
+		if (!this.state.isShowUploadFile) {
+			this.props.resetFileUploaded();
+		}
 
 		this.setState({
 			isShowUploadFile: !this.state.isShowUploadFile
@@ -265,8 +231,8 @@ class App extends Component {
 										Ok
 									</Button>
 								}
-							>
-								{ui.info}
+							>	
+								{ui.info.split('\n').map((item, index) => <div key={index}>{item}</div>)}
 							</Modal>
 							<Card
 								className='subordinates-card'
@@ -396,7 +362,8 @@ class App extends Component {
 										checked={isRequireSettingsPassing}
 										onChange={this.handleChangeRequirePassing}
 									>
-										Обязательный ли курс/тест для прохождения?
+										<span>Обязательный курс/тест нужно пройти за указанный в настройках срок?</span>
+										<i className='learnings-settings__passing-require-descr'>Если курс не пройден вовремя – вы получите соответствующее уведомление. В отчете по курсам указывается вовремя ли завершил обязательный курс сотрудник.</i>
 									</Checkbox>
 									<div>
 										<Radio.Group className='learnings-settings__passing-period' value={selectedSettingsPassingPeriod} onChange={this.handleChangeSelectPeriond}>
@@ -413,7 +380,7 @@ class App extends Component {
 							</Modal>
 							<Modal
 								width = {620}
-								title='Выберите файл'
+								title='Назначение из файла'
 								visible={isShowUploadFile}
 								onCancel={this.handleToggleFromFile}
 								footer={null}
@@ -424,7 +391,8 @@ class App extends Component {
 										checked={isRequireSettingsPassing}
 										onChange={this.handleChangeRequirePassing}
 									>
-										Обязательный ли курс/тест для прохождения?
+										<span>Обязательный курс/тест нужно пройти за указанный в настройках срок?</span>
+										<i className='learnings-settings__passing-require-descr'>Если курс не пройден вовремя – вы получите соответствующее уведомление. В отчете по курсам указывается вовремя ли завершил обязательный курс сотрудник.</i>
 									</Checkbox>
 									<div>
 										<Radio.Group className='learnings-settings__passing-period' value={selectedSettingsPassingPeriod} onChange={this.handleChangeSelectPeriond}>
@@ -439,32 +407,36 @@ class App extends Component {
 									</div>
 								</div>
 
-								<Upload
-									accept='.xls, .xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-									name='file'
-									showUploadList={false}
-									action={
+								<UploadFile
+									url={
 										this.fileType === 'assessments' ?
-											`${createBaseUrl('ActivateAssementsByFile')}`
-											: `${createBaseUrl('ActivateCoursesByFile')}`
+											`${createBaseUrl('UploadAssementsFile')}`
+											: `${createBaseUrl('UploadCoursesFile')}`
 									}
-									onChange = {({ file }) => {
-										if (file.response) {
-											onFileUploaded(file.response.data);
-										}
-									}}
-									data={{
-										is_require_settings_passing: isRequireSettingsPassing,
-										selected_settings_passing_period: selectedSettingsPassingPeriod,
-										settings_date: settingsDate ? settingsDate.format(defaultDateFormat) : null
-									}}
-								>
-									<Button disabled={(selectedSettingsPassingPeriod === 1 && settingsDate === null)} className='learnings-upload-file'>
-										<Icon type='upload' /> Загрузить файл и назначить
-									</Button>
-								</Upload>
-								{fileUploaded.isUpload &&
-									<Alert className='learnings-upload-file-message' message={fileUploaded.error ? (fileUploaded.error + '\r\nНазначено: ' + fileUploaded.count) : 'Назначено: ' + fileUploaded.count} type='info' />
+									onFileUploaded={onFileUploaded}
+									disabled={fileUploaded.isUpload}
+								/>
+								{
+									fileUploaded.isUpload && (
+										<div>
+											{fileUploaded.errors && <Alert type='error' message={`Ошибки: ${fileUploaded.errors}`} />}
+											<Alert type='info' message={(
+												<div>
+													<div>Количество сотрудников: {fileUploaded.collaboratorsCount}</div>
+													<div>Количество курсов / тестов: {fileUploaded.learningsCount}</div>
+												</div>
+											)} />
+											{!fileUploaded.errors && 
+												<Button
+													type='primary'
+													onClick={this.handleAssignLearnings}
+													style={{ marginTop: 16 }}
+												>
+													Назначить
+												</Button>
+											}
+										</div>
+									)
 								}
 							</Modal>
 						</div>
@@ -482,4 +454,4 @@ function mapStateToProps(state){
 	}
 }
 
-export default connect(mapStateToProps, { getSubordinates, selectItem, resetSelectedLearnings, assignLearnings, onFileUploaded, error, info })(App);
+export default connect(mapStateToProps, { getSubordinates, selectItem, resetSelectedLearnings, assignLearnings, assignLearningsByFile, onFileUploaded, resetFileUploaded, error, info })(App);

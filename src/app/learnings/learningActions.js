@@ -51,6 +51,41 @@ function assigning(isAssigning){
 	}
 }
 
+export function assignLearningsByFile(fileType, data) {
+	return dispatch => {
+		dispatch(assigning(true));
+		const actionName = 'assessments' ? 'ActivateAssementsByFile' : 'ActivateCoursesByFile';
+
+		request(actionName)
+		.post(data)
+		.then(r => r.json())
+		.then(d => {
+			if (d.type === 'error'){
+				throw d;
+			}
+
+			dispatch({
+				type: constants.POST_LEARNINGS_SUCCESS
+			});
+			dispatch(assigning(false));
+
+			if (d.data) {
+				dispatch(
+					info(`
+						Ошибки при назначении: ${d.data.errors ? d.data.errors : 'нет'} \n
+						Количество сотрудников: ${d.data.collaboratorsCount} \n
+						Количество назначенных курсов / тестов: ${d.data.learningsCount} \n
+					`)
+				);
+			}
+		})
+		.catch(e => {
+			dispatch(assigning(false));
+			dispatch(error(e.message));
+		});
+	}
+}
+
 export function assignLearnings(learningType, isAll, is_require_settings_passing, selected_settings_passing_period, settings_date){
 	return (dispatch, getState) => {
 		dispatch(assigning(true));

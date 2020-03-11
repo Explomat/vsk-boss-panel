@@ -12,7 +12,8 @@ export const constants = {
 	'LOADING_LIST': 'LOADING_LIST',
 	'SELECT_ITEM': 'SELECT_ITEM',
 	'SET_SEARCH': 'SET_SEARCH',
-	'FILE_UPLOADED': 'FILE_UPLOADED'
+	'FILE_UPLOADED': 'FILE_UPLOADED',
+	'RESET_FILE_UPLOADED': 'RESET_FILE_UPLOADED'
 };
 
 export function loading(isLoading){
@@ -73,6 +74,12 @@ export function onFileUploaded(data) {
 	}
 }
 
+export function resetFileUploaded() {
+	return {
+		type: constants.RESET_FILE_UPLOADED
+	}
+}
+
 export function getSubordinates(page, pageSize, search){
 	return (dispatch, getState) => {
 
@@ -86,12 +93,12 @@ export function getSubordinates(page, pageSize, search){
 				throw d;
 			}
 
-			dispatch({
-				type: constants.FETCH_USER_SUCCESS,
-				payload: d.data
-			});
-
 			if (d.data && d.data.position_parent_id) {
+				dispatch({
+					type: constants.FETCH_USER_SUCCESS,
+					payload: d.data
+				});
+				
 				dispatch(loadingList(true));
 
 				const state = getState();

@@ -32,17 +32,8 @@
 	font-weight: bold;
 }
 
-.learnings-settings__require-passing {
-	margin-bottom: 16px !important;
-}
-
 .learnings-settings__passing-period {
 	margin-bottom: 4px !important;
-}
-
-.learnings-upload-file {
-	margin-top: 20px;
-    background-color: aliceblue !important;
 }
 
 .learnings-upload-file-message{
@@ -51,4 +42,10 @@
 
 .learnings-period-message {
 	margin-top: 20px !important;
+}
+
+.learnings-settings__passing-require-descr {
+	display: block;
+    margin-top: 6px;
+    font-size: 12px;
 }

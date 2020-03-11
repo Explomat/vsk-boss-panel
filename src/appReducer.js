@@ -6,8 +6,9 @@ const appReducer = (state = {
 	user: {},
 	fileUploaded: {
 		isUpload: false,
-		count: 0,
-		error: ''
+		errors: '',
+		collaboratorsCount: 0,
+		learningsCount: 0
 	},
 	meta: {
 		search: '',
@@ -104,8 +105,20 @@ const appReducer = (state = {
 			return {
 				...state,
 				fileUploaded: {
-					isUpload: true,
+					isUpload: !state.fileUploaded.isUpload,
 					...action.payload
+				}
+			}
+		}
+
+		case constants.RESET_FILE_UPLOADED: {
+			return {
+				...state,
+				fileUploaded: {
+					isUpload: false,
+					errors: '',
+					collaboratorsCount: 0,
+					learningsCount: 0
 				}
 			}
 		}
