@@ -37,17 +37,17 @@ function activateAssessmentWithSettings(collaboratorId, learningId, isRequirePas
 				doc.TopElem.max_end_date = Date(settingsDate);
 			}
 		} else {
-			alert('---1---');
+			//alert('---1---');
 			var aDoc = OpenDoc(UrlFromDocID(Int(learningId)));
 			aDoc.TopElem.not_use_default_notification = true;
 			aDoc.Save();
-			alert('---2---');
+			//alert('---2---');
 
 			
 			doc = tools.activate_test_to_person(collaboratorId, learningId);
 			var weeksSeconds = 3 * 7 * 24 * 60 * 60;
 			var weeksDays = 3 * 7;
-			alert('---3---');
+			//alert('---3---');
 
 			try {
 				doc.TopElem;
@@ -56,7 +56,7 @@ function activateAssessmentWithSettings(collaboratorId, learningId, isRequirePas
 				doc = OpenDoc(UrlFromDocID(Int(doc)));
 			}
 
-			alert('---4---');
+			//alert('---4---');
 			doc.TopElem.max_end_date = DateOffset(DateNewTime(Date()), weeksSeconds);
 			doc.TopElem.duration = weeksDays;
 
@@ -65,24 +65,24 @@ function activateAssessmentWithSettings(collaboratorId, learningId, isRequirePas
 		}
 		
 		if (doc != null) {
-			alert('---5---');
+			//alert('---5---');
 			try {
 				doc.TopElem;
-				alert('---5.1---');
+				//alert('---5.1---');
 			} catch (e) {
-				alert('---5.2---');
-				alert(tools.object_to_text(doc, 'json'));
+				//alert('---5.2---');
+				//alert(tools.object_to_text(doc, 'json'));
 				doc = OpenDoc(UrlFromDocID(Int(doc)));
-				alert('---5.3---');
+				//alert('---5.3---');
 			}
-			alert('---6---');
+			//alert('---6---');
 
 			doc.TopElem.custom_elems.ObtainChildByKey('passing_require').value = isRequirePassing;
 			doc.Save();
 
 			tools.create_notification('31', doc.DocID);
 			tools.create_notification('33', doc.DocID);
-			alert('---7---');
+			//alert('---7---');
 		} else {
 			throw 'Ошибка при создании документа';
 		}
@@ -263,6 +263,7 @@ function activateCoursesByFile(excelFileUrl, isRequirePassing, passingPeriod, se
 			left join courses crs on crs.code = st.course_code";
 
 		q = XQuery("sql: " + strq);
+		alert(strq);
 
 		for (el in q){
 			if (el.collaborator_id == null) {
@@ -360,7 +361,6 @@ function getCoursesInfoByFile(excelFileUrl) {
 		i = i + 1;
 	}
 
-
 	var info = {
 		collaborators: {},
 		learnings: 0
@@ -391,6 +391,7 @@ function getCoursesInfoByFile(excelFileUrl) {
 			left join courses crs on crs.code = st.course_code";
 
 		q = XQuery("sql: " + strq);
+		//alert(strq);
 
 		for (el in q){
 			if (el.collaborator_id == null) {
@@ -523,7 +524,7 @@ function activateAssessmentsByFile(excelFileUrl, isRequirePassing, passingPeriod
 			
 			try {
 				isNew = activateAssessmentWithSettings(el.collaborator_id, el.assessment_id, isRequirePassing, passingPeriod, settingsDate);
-				alert('isNew:' + isNew);
+				//alert('isNew:' + isNew);
 				//count = count + 1;
 
 				if (info.collaborators.GetOptProperty(String(el.collaborator_id)) == undefined) {
@@ -646,7 +647,7 @@ function getAssessmentsInfoByFile(excelFileUrl){
 			}
 
 			if (el.assessment_id == null) {
-				setError('Тест \'' + String(el.course_code) + '\' не найден.', String(el.excel_line_number));
+				setError('Тест \'' + String(el.assessment_code) + '\' не найден.', String(el.excel_line_number));
 				continue;
 			}
 

@@ -378,10 +378,10 @@ class App extends Component {
 									</div>
 								</div>
 							</Modal>
-							<Modal
+							{isShowUploadFile && <Modal
 								width = {620}
+								visible={true}
 								title='Назначение из файла'
-								visible={isShowUploadFile}
 								onCancel={this.handleToggleFromFile}
 								footer={null}
 							>
@@ -414,12 +414,13 @@ class App extends Component {
 											: `${createBaseUrl('UploadCoursesFile')}`
 									}
 									onFileUploaded={onFileUploaded}
-									disabled={fileUploaded.isUpload}
+									onRemove={this.props.resetFileUploaded}
+									disabled={!fileUploaded.isUpload}
 								/>
 								{
 									fileUploaded.isUpload && (
 										<div>
-											{fileUploaded.errors && <Alert type='error' message={`Ошибки: ${fileUploaded.errors}`} />}
+											{fileUploaded.errors && <Alert type='error' message={fileUploaded.errors.split('\n').map((item, index) => <div key={index}>{item}</div>)} />}
 											<Alert type='info' message={(
 												<div>
 													<div>Количество сотрудников: {fileUploaded.collaboratorsCount}</div>
@@ -438,7 +439,7 @@ class App extends Component {
 										</div>
 									)
 								}
-							</Modal>
+							</Modal>}
 						</div>
 					)}
 				</div>

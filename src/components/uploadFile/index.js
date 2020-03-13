@@ -1,11 +1,28 @@
 import React, { Component } from 'react';
 import { Upload, Button, Icon, message } from 'antd';
 import { createBaseUrl } from '../../utils/request';
+import reqwest from 'reqwest';
 import './index.css';
 
 class UploadFile extends Component {
 
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			fileList: []
+		}
+
+		/*this.state = {
+			file: null,
+			uploading: false
+		}
+
+		this.handleUpload = this.handleUpload.bind(this);*/
+	}
+
 	render() {
+		const { fileList } = this.state;
 		const { url, data, onFileUploaded, disabled } = this.props;
 
 		return (
@@ -13,22 +30,35 @@ class UploadFile extends Component {
 				<Upload
 					accept='.xls, .xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 					name='file'
+					fileList={fileList}
 					action={url}
 					data={data}
-					disabled={disabled}
 					showUploadList={{
 						showDownloadIcon: false,
-						showRemoveIcon: false
+						showRemoveIcon: true
 					}}
-					onChange = {({ file }) => {
-						if (file.response) {
-							onFileUploaded(file.response.data);
+					beforeUpload={
+						file => {
+							this.setState({
+								fileList: [ ...this.state.fileList, file ]
+							});
 						}
+					}
+					onSuccess={
+						d => {
+							onFileUploaded(d.data);
+						}
+					}
+					onRemove = {() => {
+						this.setState({
+							fileList: []
+						});
+						this.props.onRemove();
 					}}
 				>
-					<Button className='learnings-upload-file'>
+					{disabled && <Button className='learnings-upload-file'>
 						<Icon type='upload' /> Загрузить файл
-					</Button>
+					</Button>}
 				</Upload>
 			</div>
 		);
