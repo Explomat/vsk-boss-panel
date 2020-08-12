@@ -1,4 +1,6 @@
 function toJSON(data){
+	var _Utils = OpenCodeLib('utils/utils.js');
+	DropFormsCache('utils/utils.js');
 	return tools.object_to_text(data, 'json');
 }
 

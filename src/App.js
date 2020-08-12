@@ -265,7 +265,7 @@ class App extends Component {
 													</Menu.SubMenu>
 												</Menu>
 											)}>
-											<a className='ant-dropdown-link' href='#'>
+											<a className='ant-dropdown-link'>
 												Действия <Icon type='down' />
 											</a>
 										</Dropdown>

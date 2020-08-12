@@ -5,21 +5,23 @@
 	//curUserID = 6605156452417082406; // Асафов 
 	//curUserID = 6711785032659205612; //Me test
 
+	curUserID = 6668363668628000564; //Me 
+
 	//curUserID = 6605155785782208336; //Пудан
 
 	//curUserID = 6605154398863757020; // my test
 
-	var _LearningsRequests = OpenCodeLib('x-local://wt/web/vsk/portal/boss-panel/server/utils/learningsRequests.js');
-	DropFormsCache('x-local://wt/web/vsk/portal/boss-panel/server/utils/learningsRequests.js');
+	var _LearningsRequests = OpenCodeLib('x-local://wt/web/vsk/portal/boss-panel-test/server/utils/learningsRequests.js');
+	DropFormsCache('x-local://wt/web/vsk/portal/boss-panel-test/server/utils/learningsRequests.js');
 
-	var _Utils = OpenCodeLib('x-local://wt/web/vsk/portal/boss-panel/server/utils/utils.js');
-	DropFormsCache('x-local://wt/web/vsk/portal/boss-panel/server/utils/utils.js');
+	var _Utils = OpenCodeLib('x-local://wt/web/vsk/portal/boss-panel-test/server/utils/utils.js');
+	DropFormsCache('x-local://wt/web/vsk/portal/boss-panel-test/server/utils/utils.js');
 
-	var _ActivateLearnings = OpenCodeLib('x-local://wt/web/vsk/portal/boss-panel/server/utils/activateLearnings.js');
-	DropFormsCache('x-local://wt/web/vsk/portal/boss-panel/server/utils/activateLearnings.js');
+	var _ActivateLearnings = OpenCodeLib('x-local://wt/web/vsk/portal/boss-panel-test/server/utils/activateLearnings.js');
+	DropFormsCache('x-local://wt/web/vsk/portal/boss-panel-test/server/utils/activateLearnings.js');
 
-	var Report = OpenCodeLib('x-local://wt/web/vsk/portal/boss-panel/server/utils/report.js');
-	DropFormsCache('x-local://wt/web/vsk/portal/boss-panel/server/utils/report.js');
+	var Report = OpenCodeLib('x-local://wt/web/vsk/portal/boss-panel-test/server/utils/report.js');
+	DropFormsCache('x-local://wt/web/vsk/portal/boss-panel-test/server/utils/report.js');
 
 	function getUser(userId) {
 		var us = ArrayOptFirstElem(XQuery("sql: \n\
@@ -55,7 +57,6 @@
 
 			return userObj;
 		}
-
 		return userObj;
 	}
 

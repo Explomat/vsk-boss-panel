@@ -80,8 +80,11 @@ function activateAssessmentWithSettings(collaboratorId, learningId, isRequirePas
 			doc.TopElem.custom_elems.ObtainChildByKey('passing_require').value = isRequirePassing;
 			doc.Save();
 
-			tools.create_notification('31', doc.DocID);
-			tools.create_notification('33', doc.DocID);
+			if (isNew) {
+				tools.create_notification('31', doc.DocID);
+				tools.create_notification('33', doc.DocID);
+			}
+			
 			//alert('---7---');
 		} else {
 			throw 'Ошибка при создании документа';
@@ -165,8 +168,11 @@ function activateCourseWithSettings(collaboratorId, learningId, isRequirePassing
 			doc.TopElem.custom_elems.ObtainChildByKey('passing_require').value = isRequirePassing;
 			doc.Save();
 
-			tools.create_notification('30', doc.DocID);
-			tools.create_notification('32', doc.DocID);
+			if (isNew) {
+				tools.create_notification('30', doc.DocID);
+				tools.create_notification('32', doc.DocID);
+			}
+			
 		} else {
 			throw 'Ошибка при создании документа';
 		}

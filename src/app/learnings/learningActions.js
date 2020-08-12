@@ -54,7 +54,7 @@ function assigning(isAssigning){
 export function assignLearningsByFile(fileType, data) {
 	return dispatch => {
 		dispatch(assigning(true));
-		const actionName = 'assessments' ? 'ActivateAssementsByFile' : 'ActivateCoursesByFile';
+		const actionName = fileType === 'assessments' ? 'ActivateAssementsByFile' : 'ActivateCoursesByFile';
 
 		request(actionName)
 		.post(data)
