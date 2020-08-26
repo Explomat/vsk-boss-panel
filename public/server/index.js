@@ -5,23 +5,23 @@
 	//curUserID = 6605156452417082406; // Асафов 
 	//curUserID = 6711785032659205612; //Me test
 
-	curUserID = 6668363668628000564; //Me 
+	//curUserID = 6668363668628000564; //Me 
 
 	//curUserID = 6605155785782208336; //Пудан
 
 	//curUserID = 6605154398863757020; // my test
 
-	var _LearningsRequests = OpenCodeLib('x-local://wt/web/vsk/portal/boss-panel-test/server/utils/learningsRequests.js');
-	DropFormsCache('x-local://wt/web/vsk/portal/boss-panel-test/server/utils/learningsRequests.js');
+	var _LearningsRequests = OpenCodeLib('x-local://wt/web/vsk/portal/boss-panel/server/utils/learningsRequests.js');
+	DropFormsCache('x-local://wt/web/vsk/portal/boss-panel/server/utils/learningsRequests.js');
 
-	var _Utils = OpenCodeLib('x-local://wt/web/vsk/portal/boss-panel-test/server/utils/utils.js');
-	DropFormsCache('x-local://wt/web/vsk/portal/boss-panel-test/server/utils/utils.js');
+	var _Utils = OpenCodeLib('x-local://wt/web/vsk/portal/boss-panel/server/utils/utils.js');
+	DropFormsCache('x-local://wt/web/vsk/portal/boss-panel/server/utils/utils.js');
 
-	var _ActivateLearnings = OpenCodeLib('x-local://wt/web/vsk/portal/boss-panel-test/server/utils/activateLearnings.js');
-	DropFormsCache('x-local://wt/web/vsk/portal/boss-panel-test/server/utils/activateLearnings.js');
+	var _ActivateLearnings = OpenCodeLib('x-local://wt/web/vsk/portal/boss-panel/server/utils/activateLearnings.js');
+	DropFormsCache('x-local://wt/web/vsk/portal/boss-panel/server/utils/activateLearnings.js');
 
-	var Report = OpenCodeLib('x-local://wt/web/vsk/portal/boss-panel-test/server/utils/report.js');
-	DropFormsCache('x-local://wt/web/vsk/portal/boss-panel-test/server/utils/report.js');
+	var Report = OpenCodeLib('x-local://wt/web/vsk/portal/boss-panel/server/utils/report.js');
+	DropFormsCache('x-local://wt/web/vsk/portal/boss-panel/server/utils/report.js');
 
 	function getUser(userId) {
 		var us = ArrayOptFirstElem(XQuery("sql: \n\
@@ -318,17 +318,44 @@
 		return _Utils.setSuccess(null, errors);
 	}
 
-	function get_LearningsReport() {
+	function get_EventsReport(queryObjects) {
 		var u = getUser(curUserID);
 		if (u == undefined) {
 			return _Utils.setError('Пользователь не найден или не является руководителем');
 		}
 
-		var ls = _LearningsRequests.getLearnings(Int(u.position_parent_id));
+		var ls = _LearningsRequests.getEvents(Int(u.position_parent_id));
 		var excelPath = '';
 
 		try {
-			excelPath = Report.create(ls);
+			excelPath = Report.create(ls, [
+				'Название',
+				'Дата начала',
+				'Дата окончания',
+				'Категория мероприятия',
+				'Блок',
+				'Наименование компании-партнера (партнерский канал)',
+				'Учебная программа',
+				'Плановое/внеплановое обучение ',
+				'Форма проведения',
+				'Город проведения',
+				'Место проведения',
+				'Провайдер',
+				'Продожительность в днях',
+				'Продожительность',
+				'Заказчик',
+				'Ответственные за подготовку',
+				'Преподаватели',
+				'Максимальное количество участников',
+				'Плановое количество участников (сотрудники ВСК и Агенты)',
+				'Фактическое количество участников (сотрудники ВСК и Агенты)',
+				'Планируемое количество участников (не сотрудников ВСК)',
+				'Фактическое количество участников (не сотрудников ВСК)',
+				'Статус',
+				'Категория мероприятия',
+				'ФИО обучаемых',
+				'Примечание'
+			]);
 		} catch(e) {
 			alert('e: ' + e);
 			return _Utils.setError(e);
@@ -339,17 +366,116 @@
 		return LoadFileData(excelPath);
 	}
 
-	function get_TestLearningsReport() {
+	function get_LearningsReport(queryObjects) {
+		var _subordinates = [];
+		var _learnings = [];
+
+		if (queryObjects.HasProperty('subordinates')) {
+			var _s = queryObjects.subordinates;
+			if (Trim(_s) != '') {
+				_subordinates = _s.split(',');
+			}
+		}
+
+		if (queryObjects.HasProperty('learnings')) {
+			var _l = queryObjects.learnings;
+			if (Trim(_l) != '') {
+				_learnings = _l.split(',');
+			}
+		}
+
+		var isAllSubordinates = queryObjects.HasProperty('is_all_subordinates') ? _Utils.strToBool(queryObjects.is_all_subordinates) : true;
+		var isAllLearnings = queryObjects.HasProperty('is_all_learnings') ? _Utils.strToBool(queryObjects.is_all_learnings) : true;
+
 		var u = getUser(curUserID);
 		if (u == undefined) {
 			return _Utils.setError('Пользователь не найден или не является руководителем');
 		}
 
-		var tls = _LearningsRequests.getTestLearnings(Int(u.position_parent_id));
+		var ls = _LearningsRequests.getLearnings(Int(u.position_parent_id), _subordinates, _learnings);
 		var excelPath = '';
 
 		try {
-			excelPath = Report.create(tls);
+			excelPath = Report.create(ls, [
+				'ФИО',
+				'Подразделение',
+				'Должность',
+				'Название',
+				'Дата начала',
+				'Дата последнего посещения',
+				'Дата планируемого завершения',
+				'Процент выполнения',
+				'Статус',
+				'Обязательно к прохождению',
+				'Подразделение 1',
+				'Подразделение 2',
+				'Подразделение 3',
+				'Подразделение 4',
+				'Подразделение 5',
+				'Подразделение 6',
+				'Подразделение 7',
+				'Подразделение 8'
+			]);
+		} catch(e) {
+			alert('e: ' + e);
+			return _Utils.setError(e);
+		}
+		
+		Request.AddRespHeader('Content-Type', 'application/octet-stream');
+		Request.AddRespHeader('Content-disposition', 'attachment; filename=report.xlsx');
+		return LoadFileData(excelPath);
+	}
+
+	function get_TestLearningsReport(queryObjects) {
+		var _subordinates = [];
+		var _learnings = [];
+
+		if (queryObjects.HasProperty('subordinates')) {
+			var _s = queryObjects.subordinates;
+			if (Trim(_s) != '') {
+				_subordinates = _s.split(',');
+			}
+		}
+
+		if (queryObjects.HasProperty('learnings')) {
+			var _l = queryObjects.learnings;
+			if (Trim(_l) != '') {
+				_learnings = _l.split(',');
+			}
+		}
+
+		var isAllSubordinates = queryObjects.HasProperty('is_all_subordinates') ? _Utils.strToBool(queryObjects.is_all_subordinates) : true;
+		var isAllLearnings = queryObjects.HasProperty('is_all_learnings') ? _Utils.strToBool(queryObjects.is_all_learnings) : true;
+
+		var u = getUser(curUserID);
+		if (u == undefined) {
+			return _Utils.setError('Пользователь не найден или не является руководителем');
+		}
+
+		var tls = _LearningsRequests.getTestLearnings(Int(u.position_parent_id), _subordinates, _learnings);
+		var excelPath = '';
+
+		try {
+			excelPath = Report.create(tls, [
+				'ФИО',
+				'Подразделение',
+				'Должность',
+				'Название',
+				'Дата начала',
+				'Дата последнего посещения',
+				'Дата планируемого завершения',
+				'Процент выполнения',
+				'Статус',
+				'Обязательно к прохождению',
+				'Подразделение 1',
+				'Подразделение 2',
+				'Подразделение 3',
+				'Подразделение 4',
+				'Подразделение 5',
+				'Подразделение 6',
+				'Подразделение 7',
+				'Подразделение 8'
+			]);
 		} catch(e) {
 			alert('e: ' + e);
 			return _Utils.setError(e);

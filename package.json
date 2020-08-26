@@ -1,8 +1,8 @@
 {
-  "name": "boss-panel-test",
+  "name": "boss-panel",
   "version": "0.1.0",
   "private": true,
-  "homepage": "/vsk/portal/boss-panel-test",
+  "homepage": "/vsk/portal/boss-panel",
   "dependencies": {
     "@babel/core": "7.6.0",
     "@babel/plugin-transform-react-jsx": "^7.7.4",

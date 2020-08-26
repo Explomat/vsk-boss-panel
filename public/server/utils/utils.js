@@ -1,6 +1,4 @@
 function toJSON(data){
-	var _Utils = OpenCodeLib('utils/utils.js');
-	DropFormsCache('utils/utils.js');
 	return tools.object_to_text(data, 'json');
 }
 
@@ -29,4 +27,12 @@ function setError(message){
 
 function notificate(templateCode, primaryId, text, secondaryId){
 	tools.create_notification(templateCode, primaryId, text, secondaryId);
+}
+
+function strToBool(str) {
+	if (str == 'true' || str == '1' || str == 1) {
+		return true;
+	}
+
+	return false;
 }
