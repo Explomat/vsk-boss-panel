@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { Upload, Button, Icon, message } from 'antd';
-import { createBaseUrl } from '../../utils/request';
-import reqwest from 'reqwest';
+import { Upload, Button, Icon } from 'antd';
+/*import { createBaseUrl } from '../../utils/request';
+import reqwest from 'reqwest';*/
 import './index.css';
 
 class UploadFile extends Component {

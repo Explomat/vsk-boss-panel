@@ -2,8 +2,8 @@ export function pureUrl(){
 	//return window.location.protocol + '//192.168.73.37';
 	//return process.env.NODE_ENV === 'production' ?
 	//		(window.location.protocol + '//e-learning.vsk.ru:' + window.location.port) : window.location.protocol + '//192.168.73.37';
-	//return `${window.location.protocol}//e-learning.vsk.ru`;
-	return (window.location.protocol + '//e-learning.vsk.ru:' + window.location.port);
+	return 'https://e-learning.vsk.ru:444';
+	//return (window.location.protocol + '//e-learning.vsk.ru:' + window.location.port);
 }
 
 export function createBaseUrl(action_name, params = {}){

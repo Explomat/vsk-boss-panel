@@ -1,0 +1,15 @@
+.radio-group {
+	border: 1px solid #4444445c;
+	padding: 8px !important;
+	border-radius: 4px;
+	width: 48%;
+}
+
+.radio-group:first-child {
+	margin-right: 8px !important;
+}
+
+.radio-group__item {
+	display: block !important;
+	padding: 8px 0 !important;
+}
