@@ -87,17 +87,17 @@ function getEvents(subId) {
 	return XQuery(strq);
 }
 
-function getLearnings(subId, _subordinates, _learnings) {
+function getLearnings(subId, _subordinates, _learnings, isAllSubordinates, isAllLearnings) {
 	var s = _subordinates.join('),(');
 	var l = _learnings.join('),(');
 
 	var strq = "sql: \n\
 		declare @_subordinates table (id bigint); \n\
-		" + (_subordinates.length == 0 ? '' : 'insert into @_subordinates (id) values (' + s + ');') + " \n\
+		" + (_subordinates.length == 0 || isAllSubordinates) ? '' : 'insert into @_subordinates (id) values (' + s + ');') + " \n\
 		declare @_subordinatesCount int = (select count(id) from @_subordinates); \n\
 		\n\
 		declare @_learnings table (id bigint); \n\
-		" + (_learnings.length == 0 ? '' : 'insert into @_learnings (id) values (' + l + ');') + " \n\
+		" + (_learnings.length == 0 || isAllLearnings) ? '' : 'insert into @_learnings (id) values (' + l + ');') + " \n\
 		declare @_learningsCount int = (select count(id) from @_learnings); \n\
 		\n\
 		select \n\
@@ -189,17 +189,17 @@ function getLearnings(subId, _subordinates, _learnings) {
 	return XQuery(strq);
 }
 
-function getTestLearnings(subId, _subordinates, _learnings) {
+function getTestLearnings(subId, _subordinates, _learnings, isAllSubordinates, isAllLearnings) {
 	var s = _subordinates.join('),(');
 	var l = _learnings.join('),(');
 
 	var strq = "sql: \n\
 		declare @_subordinates table (id bigint); \n\
-		" + (_subordinates.length == 0 ? '' : 'insert into @_subordinates (id) values (' + s + ');') + " \n\
+		" + (_subordinates.length == 0 || isAllSubordinates) ? '' : 'insert into @_subordinates (id) values (' + s + ');') + " \n\
 		declare @_subordinatesCount int = (select count(id) from @_subordinates); \n\
 		\n\
 		declare @_learnings table (id bigint); \n\
-		" + (_learnings.length == 0 ? '' : 'insert into @_learnings (id) values (' + l + ');') + " \n\
+		" + (_learnings.length == 0 || isAllLearnings) ? '' : 'insert into @_learnings (id) values (' + l + ');') + " \n\
 		declare @_learningsCount int = (select count(id) from @_learnings); \n\
 		\n\
 		select \n\

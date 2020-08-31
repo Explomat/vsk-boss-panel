@@ -392,7 +392,7 @@
 			return _Utils.setError('Пользователь не найден или не является руководителем');
 		}
 
-		var ls = _LearningsRequests.getLearnings(Int(u.position_parent_id), _subordinates, _learnings);
+		var ls = _LearningsRequests.getLearnings(Int(u.position_parent_id), _subordinates, _learnings, isAllSubordinates, isAllLearnings);
 		var excelPath = '';
 
 		try {
@@ -452,7 +452,7 @@
 			return _Utils.setError('Пользователь не найден или не является руководителем');
 		}
 
-		var tls = _LearningsRequests.getTestLearnings(Int(u.position_parent_id), _subordinates, _learnings);
+		var tls = _LearningsRequests.getTestLearnings(Int(u.position_parent_id), _subordinates, _learnings, isAllSubordinates, isAllLearnings);
 		var excelPath = '';
 
 		try {
